@@ -1,263 +1,153 @@
-# hedera-harness
+# Hedera Lab
 
-TypeScript CLI that builds features into [scaffold-hbar](https://github.com/hedera-dev/scaffold-hbar) projects from a product brief you write. It drives a coding agent, validates what the agent produced, and repairs on failure — recording everything on a git branch you can review.
+**Verify what an agent-built application actually does on Hedera.**
 
-**The harness decides whether a run passed, not the agent.**
+A green test suite or a “payment complete” screen does not prove that the right
+account received the right amount. Hedera Lab runs application scenarios, checks
+ledger outcomes independently, and gives coding agents concrete findings to repair.
 
-```bash
-npx hedera-harness init my-app     # or run `init` inside a project you already have
-cd my-app
-$EDITOR .harness/prd.md            # describe the feature
-npx hedera-harness doctor          # check the setup before a long run
-npx hedera-harness run
+Use the bundled agent skill to generate verification files from your requirements,
+then run local checks, inspect evidence and repair the application. An optional
+x402 service adds paid verification through provider-registered packages.
+
+[Get started](#try-it-in-two-minutes) · [Bring your app](docs/onboarding.md) ·
+[Architecture](docs/architecture.md) · [Results](docs/results.md)
+
+## Try it in two minutes
+
+Requires Node.js 24 and npm. No wallet, Docker, or model account is needed for this example.
+
+```sh
+git clone https://github.com/parthg1901/hedera-lab.git
+cd hedera-lab
+npm ci
+npm run build
+node dist/index.js lab run examples/lab-ticketing/scenarios/ledger.yaml
 ```
 
-## How a run works
+The command prints **PASS**, a `simulated` label, and an HTML report you can open.
+The repository currently requires access; anonymous cloning will work after publication.
 
-Each attempt runs four stages. Early stages short-circuit the rest, so a failing build never pays for a browser or an agent.
+For your own JavaScript payout application:
+
+```sh
+node dist/index.js lab onboard init --workspace /path/to/your-app
+```
+
+The wizard finds candidate functions and inputs, asks for approved recipient
+amounts, generates the verification files, and runs a free simulation. It supports
+HBAR payout functions; other application shapes need an adapter.
+
+[Full quick start](docs/quickstart.md) · [Onboarding guide](docs/onboarding.md)
+
+## Let your coding agent add verification
+
+Give your agent the bundled [Hedera Lab skill](skills/hedera-lab/SKILL.md):
+
+> Read `skills/hedera-lab/SKILL.md`. Connect my application to Hedera Lab, generate
+> the verification files from my requirements, and run the local checks.
+
+The skill guides payout onboarding, custom NFT/HCS plans and browser integration.
+Copy the complete `skills/hedera-lab` folder into your agent's supported skill
+location for native discovery, or point it directly at `SKILL.md`. Native skill
+loading varies by agent; this is not an automatically installed plugin.
+
+## What you can do
+
+| Capability | What it checks |
+| --- | --- |
+| Application verification | Approved HBAR amounts, NFT ownership, token association and HCS messages |
+| Browser scenarios | Connect actual UI actions to independent ledger assertions |
+| Failure and recovery testing | Delayed indexing, retries, concurrency and uncertain transaction outcomes |
+| Agent repair | Feed stable findings into the Harness generation/checkpoint/repair lifecycle |
+| Network execution | In-memory simulation, Hedera testnet and a configured Solo network |
+| Paid verification | Quote required coverage, enforce budgets, settle through Blocky402 and deliver evidence |
+| Mainnet preflight | Read-only verification of the registered approval use case; no mainnet writes |
+
+## Optional: paid verification with x402
+
+The paid path is implemented and tested on a **private testnet deployment**. It is
+not required for local verification or use of the skill. No public service endpoint
+is offered; operators can deploy their own registered verification service.
+
+![A paid testnet verification with passing assertions, payment evidence and reconciled network fees](docs/assets/dashboard.png)
+
+*Actual result from our private testnet deployment. Public hosting is not yet available.*
+
 
 ```mermaid
-flowchart TD
-  inputs[Recipe: spec + PRD + validators] --> branch[Create or continue harness/run-* branch]
-  branch --> baseline[Baseline health checks on the existing app]
-  baseline --> generate[1 GENERATE - coding agent]
-  generate --> assert[2 ASSERT - files, static, secrets, commands]
-  assert --> smoke[3 SMOKE - dev server + Playwright routes]
-  smoke --> evaluate[4 EVALUATE - adversarial validator vs contract]
-  evaluate --> outcome[Pass / Fail / Abort]
-  outcome --> artifacts[.harness/runs/ artifacts + checkpoint commits]
-  assert -.->|fail + attempts left| generate
-  smoke -.->|fail + attempts left| generate
-  evaluate -.->|fail + attempts left| generate
+flowchart LR
+    User[Requirements and budget] --> Agent[Purchasing agent]
+    Agent -->|Quote and x402 payment| Service[Verification service]
+    Service --> Worker[Isolated testnet worker]
+    Worker --> Ledger[Hedera and mirror evidence]
+    Ledger --> Report[Assertions and cost report]
+    Report --> Repair[Review, repair and retest]
 ```
 
-- **fail + attempts left** → focused repair prompt → back to GENERATE
-- **fail + budget exhausted** → stay on the harness branch with artifacts
-- **harness/tooling failure** (MCP, browser) → **abort**, no repair — the app is not what broke
+The customer signs the service payment locally. A separate worker funds disposable
+test accounts, executes registered checks, and reports actual fees and cleanup.
+Service payment and testing exposure have separate limits. The dashboard displays
+contracts, results and payment evidence.
 
-Every attempt reports what moved, not just pass/fail:
+[Architecture](docs/architecture.md#optional-x402-service) ·
+[Payment API and agent setup](docs/verification/README.md) ·
+[Container deployment](deploy/verification/WORKER.md)
 
-```
-Stage 1/4 GENERATE — repair, attempt 3 [opus, escalated — last attempt fixed nothing]
-Attempt 3 FAILED — 2 open, 3 fixed, 1 new
-```
+Try the dashboard with simulated payments:
 
-`2 open, 3 fixed` distinguishes an agent converging from one trading one failure for another — which is what tells you whether another attempt is worth its 15–40 minutes.
-
-## The recipe
-
-`.harness/` inside your project. Everything the harness can default, it defaults:
-
-```yaml
-schemaVersion: 2
-
-name: my-feature
-description: What you want the agent to build.
-
-baseline:
-  commands:
-    - name: install          # required — also used for install fingerprinting
-      command: yarn install
-    - name: build
-      command: yarn next:build
+```sh
+npm run verify:serve -- --config examples/verification/payment-catalog.json
 ```
 
-That is a complete, working recipe. `generator`, `logging`, `secretScan`, `forbiddenFiles`, validator paths, `prd` and `maxAttempts` all have defaults, and `constraints.forbiddenCommands` is derived from your package manager. The generated skeleton lists every default as a comment so you can see the full surface without carrying it.
+Open **http://localhost:4318** and follow the [dashboard walkthrough](docs/quickstart.md#2-use-the-dashboard-without-paying-on-chain).
 
-Pick the agent with one line:
+## What we demonstrated
 
-```yaml
-agent: claude        # or: cursor (default)
+- **Assisted onboarding:** a separate payout example reached its first simulated
+  verification with no handwritten Lab files.
+- **Real network recovery:** testnet and Solo runs recovered original receipts
+  after restarts without submitting another business transaction in the tested cases.
+- **Optional paid repair:** GrantFlow passed its four ordinary tests while paying
+  the wrong recipient amounts. Private paid testnet verification caught the error;
+  a coding agent repaired it, and a second paid run passed. Total service payment:
+  0.02 testnet HBAR.
+
+These are bounded demonstrations, not a general agent-accuracy claim. The paid
+repair used a controlled defect; the onboarding example was purpose-built.
+[Results, limitations and reproduction commands](docs/results.md)
+
+## Project map
+
+```text
+src/lab/             Scenarios, adapters, onboarding, assertions and reports
+src/verification/    Quotes, payments, dashboard and execution worker
+src/preflight/       Read-only mainnet approval checks
+examples/            Runnable applications and service configurations
+test/                Regression and browser tests
+scripts/             Reproducible demos and evaluations
+deploy/              Container definitions and deployment guides
+docs/                Usage, architecture and technical reference
 ```
 
-That governs the whole run — how the generator is invoked, how the validator receives Playwright MCP, and which models are used. Enabling the semantic tier is then `validator: { enabled: true }`, not a second copy of the agent flags.
-
-See [docs/authoring-a-recipe.md](docs/authoring-a-recipe.md) for the full format.
-
-### Building in increments
-
-For anything larger than a small change, list PRDs in order:
-
-```yaml
-prd:
-  - .harness/prds/01-foundation.md
-  - .harness/prds/02-ui.md
-  - .harness/prds/03-onchain.md
+```sh
+npm test
+npx playwright install --with-deps chromium
+npm run test:browser
 ```
 
-Each is delivered onto the same branch with its own attempt budget and its own checkpoint commits, and the agent is told which increment it is on and that the earlier ones are done. A failure stops the sequence; `--continue` resumes there rather than redoing delivered work.
+[Technical reference](docs/reference/README.md) · [Deployment](docs/operations/README.md) ·
+[Contributing](CONTRIBUTING.md) · [Security](SECURITY.md)
 
-One large PRD with three repair attempts is a poor fit for a real feature: the work exceeds the budget, and a failure loses all of it.
+## Scope and origins
 
-## Validation tiers
+Hosted execution currently requires provider-registered applications. Arbitrary
+repository uploads and automatic provider onboarding are not implemented. Local
+code execution requires trusted code. Solo needs its own installation; a simulator
+pass does not establish live-network behavior. See [architecture](docs/architecture.md)
+for trust boundaries and recovery limits.
 
-| Tier | Enable with | What it proves | Cost |
-|---|---|---|---|
-| **0–1 deterministic** | on by default | files present, static assertions, no secrets, build passes | seconds |
-| **2 Playwright gate** | `validators.playwright` | the app boots and its routes actually render | a dev server boot |
-| **3 semantic** | `contract` + `validator.enabled` | an adversarial agent drives the live app and grades numbered assertions | an agent session |
-| **3.5 on-chain** | `chainValidation` | an ephemeral funded testnet signer completes real transactions, verified via mirror node | testnet HBAR |
-
-Start at the bottom. Add a tier when the one below stops catching your failures.
-
-The Tier 3 validator is told to **fail on uncertainty**. If it cannot reach the browser it says so and fails the assertion rather than guessing, so a passing verdict means something.
-
-## Branch behaviour
-
-| Current branch | Recipe | Behaviour |
-|---|---|---|
-| `harness/run-feature-abc` | same | **continue** — resume attempts |
-| `harness/run-feature-abc` | different | **new branch** |
-| `main` or other | any | **new branch** |
-
-```bash
-hedera-harness run --new                                  # force a fresh branch
-hedera-harness run --continue harness/run-my-feature-abc  # resume a specific one
-```
-
-The harness never pushes, opens a PR, merges, deletes a branch, or switches away. It requires a clean tree and does not auto-stash. Checkpoint commits stage explicit paths — never `git add -A` — and refuse to stage runtime or secret paths.
-
-## CLI
-
-```bash
-hedera-harness init [dir] [--repo URL] [--ref branch] [--template name] [--skip-install] [--skills a,b]
-hedera-harness run [spec] [--max-attempts N] [--new] [--continue <branch>]
-hedera-harness doctor [spec] [--workspace <path>] [--recipe-only]
-hedera-harness migrate [spec] [--dry-run]
-hedera-harness validate [spec] [--workspace <path>]
-hedera-harness validate-semantic [spec] [--workspace <path>]
-```
-
-**`init`** decides what to do from the target:
-
-| Target | Behaviour |
-|---|---|
-| missing or empty | clone scaffold-hbar and provision `.harness/` |
-| holds a `package.json` | adopt the harness in place, no clone |
-| non-empty, not a project | refused |
-
-`--template hedera-demo` selects a scaffold-hbar template branch. `init` never overwrites an existing recipe — it reports what it kept.
-
-**`doctor`** reports everything at once instead of stopping at the first problem: node, git, git state, the recipe and its warnings, the agent CLI, the package manager, every path the recipe references, optional peer deps for the enabled tiers, and `chainValidation` env vars. A real run costs 40 minutes to two hours; this costs seconds.
-
-**`migrate`** rewrites a pre-v2 recipe in place. A key is removed only when its value equals what the harness would default it to — anything you customised is kept and reported.
-
-## Configuration
-
-Operational knobs live in the environment, not the recipe. Editing a recipe to shorten a timeout produces a spurious project diff, and on a template branch it gets committed by mistake.
-
-| Variable | Effect |
-|---|---|
-| `HARNESS_MAX_ATTEMPTS` | repair attempts per run |
-| `HARNESS_AGENT_TIMEOUT_S` | wall-clock budget per agent invocation |
-| `HARNESS_AGENT_IDLE_TIMEOUT_MS` | kill an agent that stops producing output |
-| `HARNESS_MODEL` / `HARNESS_FIX_MODEL` | override the preset's models |
-| `HARNESS_NO_MODEL_SWITCH` | disable dropping to a cheaper model on repairs |
-
-Precedence: CLI flag > environment > recipe > harness default.
-
-**Model escalation.** Repairs run the cheaper model, *except* after an attempt that fixed nothing — paying less to repeat a failure is not a saving, so it escalates back.
-
-**Prompts are files.** Everything the agent is told lives in [`prompts/`](prompts/) as markdown. Override any single one at `.harness/prompts/<name>.md`; `doctor` reports which are overridden, since an override is a copy that will not receive later changes.
-
-## Prerequisites
-
-**Always:** Node.js ≥ 20, git, and an authenticated agent CLI — Cursor (`agent`) or Claude Code (`claude`).
-
-```bash
-npm install -D hedera-harness
-npx hedera-harness doctor
-```
-
-Playwright and the Hedera SDK are **optional peer dependencies**, needed only by the higher tiers:
-
-```bash
-# Tier 2 — the browser API; no separate Chromium download is required
-npm install -D playwright
-
-# Tier 3.5
-npm install -D @hiero-ledger/sdk
-export HEDERA_OPERATOR_ID=0.0.xxxx
-export HEDERA_OPERATOR_KEY=0x...      # ECDSA — ED25519 has no EVM alias
-```
-
-**Tier 2 and Tier 3 share one browser policy.** The harness uses the project's
-existing Playwright Chromium when available and otherwise launches system
-Chrome. Tier 2 still needs the `playwright` package for its browser API, but
-neither tier requires a separate Chromium download when Chrome is installed.
-For Tier 3, the harness launches its pinned `@playwright/mcp` version through
-`npx` and supplies the MCP configuration itself; do not copy an `.mcp.json`
-into the project. Run `npx hedera-harness doctor` to launch-probe the selected
-browser.
-
-See [`.env.example`](.env.example). The harness does not auto-load `.env`, and never writes credentials into the workspace.
-
-## Project layout after `init`
-
-```
-my-app/
-├── .harness/
-│   ├── spec.yaml              # the recipe
-│   ├── prd.md                 # what to build
-│   ├── validators/
-│   ├── prompts/               # optional per-project prompt overrides
-│   ├── skills/                # pre-vendored at init (gitignored)
-│   ├── runtime/               # per-run skills/context (gitignored)
-│   └── runs/                  # artifacts + session.json (gitignored)
-├── skills-index.json
-└── packages/
-```
-
-Harness logs always live under `.harness/runs/` and are not configurable — pointing them elsewhere would leave untracked files that fail the next run's clean-tree check.
-
-## Skills
-
-Recipes list skills by **name**. The harness resolves them through [`skills-index.json`](skills-index.json), fetching from git when needed (cached under `.skill-cache/`) and vendoring into `.harness/runtime/skills/` for the run.
-
-```yaml
-skills:
-  - hedera-consensus-service
-  - project-scaffolding
-```
-
-To author recipes with an agent, install the marketplace plugin:
-
-```
-/plugin marketplace add hedera-dev/hedera-skills
-/plugin install hedera-harness
-/create-harness-spec
-```
-
-## Repository layout
-
-```
-├── src/                      # implementation
-├── prompts/                  # agent prompts (shipped; overridable per project)
-├── skeletons/project-harness # provisioned by `init`
-├── skills-index.json
-├── scripts/                  # e2e, template-recipe check, tier 3 verification
-├── docs/                     # authoring-a-recipe.md, prds/, implementation-plan.md
-└── test/
-```
-
-## Scripts
-
-| Command | Description |
-|---|---|
-| `npm run build` | Clean and compile to `dist/` |
-| `npm run typecheck` | Type-check without emitting |
-| `npm test` | Build, then run the Node test suites |
-| `npm run check:templates` | Verify every scaffold-hbar template recipe still loads |
-| `npm run smoke:pack` | Pack a tarball and smoke-install it with Yarn 3 |
-
-## Design notes
-
-- **Validation is authoritative** — agents do not declare success; the harness does.
-- **Infrastructure failures are not app failures** — an MCP or browser problem aborts rather than handing the agent a repair prompt for something it did not break.
-- **The project is the workspace** — one git worktree, versioned by `harness/run-*` branches and checkpoint commits.
-- **Nothing is pushed for you** — completion prints the next steps and stops.
-- **Secrets never reach artifacts** — prompts and logs are redacted, the ephemeral signer file is `0600`, and checkpoints refuse to stage secret paths.
-
-## License
-
-MIT
+Hedera Lab extends [Hedera Harness](https://github.com/hedera-dev/hedera-harness),
+retaining its generation, validation and repair lifecycle. Original upstream Git
+history and the [MIT license](LICENSE) are preserved. The package and CLI remain
+`hedera-harness` for compatibility.

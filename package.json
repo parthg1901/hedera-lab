@@ -7,6 +7,7 @@
     "hedera-harness": "./dist/index.js"
   },
   "files": [
+    "dist",
     "skills-index.json",
     "prompts",
     "skeletons",
@@ -19,6 +20,8 @@
     "examples/preflight",
     "examples/grant-flow",
     "examples/team-payouts",
+    "CONTRIBUTING.md",
+    "SECURITY.md",
     "skills/hedera-lab"
   ],
   "scripts": {
