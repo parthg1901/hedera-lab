@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "operations": [
+    {
+      "type": "transferHbar",
+      "actor": "treasury",
+      "to": "bob",
+      "amount": 0.25
+    },
+    {
+      "type": "transferHbar",
+      "actor": "treasury",
+      "to": "alice",
+      "amount": 0.75
+    },
+    {
+      "type": "submitMessage",
+      "actor": "treasury",
+      "topic": "audit",
+      "message": "grants:community-2026-09:count:2"
+    }
+  ]
+}

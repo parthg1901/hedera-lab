@@ -1,0 +1,8 @@
+{
+  "batchId": "community-2026-09",
+  "directory": ["alice", "bob"],
+  "grants": [
+    {"recipient": "bob", "hbar": 0.25},
+    {"recipient": "alice", "hbar": 0.75}
+  ]
+}

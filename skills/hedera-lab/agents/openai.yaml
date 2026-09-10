@@ -1,0 +1,4 @@
+interface:
+  display_name: "Hedera Lab"
+  short_description: "Connect Hedera applications to independent verification"
+  default_prompt: "Use $hedera-lab to integrate my application with Hedera Lab and verify its behavior against my requirements."

@@ -6,6 +6,11 @@ import { mirrorGet } from "./mirror.js";
 
 export async function runLabCli(args: string[]): Promise<void> {
   const [command, ...rest] = args;
+  if (command === "onboard") {
+    const { runOnboardingCli } = await import("./onboard.js");
+    await runOnboardingCli(rest);
+    return;
+  }
   if (command === "up") {
     if (rest.length) throw new Error("Usage: hedera-harness lab up");
     const docker = await executeCommand({ command: "docker", args: ["info", "--format", "{{.ServerVersion}}"], cwd: process.cwd(), timeoutMs: 10_000 }).catch(() => ({ exitCode: 127 }));

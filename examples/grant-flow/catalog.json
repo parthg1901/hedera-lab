@@ -1,0 +1,24 @@
+{
+  "target": "grant-flow-registered-application",
+  "packs": [
+    {
+      "id": "grant-distribution",
+      "title": "Grant payout verification",
+      "description": "Execute the application-generated HBAR payout plan and independently verify each approved recipient amount and HCS audit record.",
+      "priceTinybar": "1000000",
+      "scenario": "scenarios/testnet.yaml",
+      "workspace": ".",
+      "funding": {
+        "estimatedFeeTinybar": "500000000",
+        "feeCeilingTinybar": "2400000000",
+        "cleanupReserveTinybar": "800000000",
+        "perTransactionMaxTinybar": "200000000"
+      },
+      "risks": [
+        "payment",
+        "authorization",
+        "delivery"
+      ]
+    }
+  ]
+}

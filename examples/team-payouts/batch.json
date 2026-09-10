@@ -1,0 +1,7 @@
+{
+  "poolCents": 101,
+  "members": [
+    {"name": "designer", "weight": 1},
+    {"name": "engineer", "weight": 2}
+  ]
+}

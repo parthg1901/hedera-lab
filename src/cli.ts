@@ -36,6 +36,7 @@ export function printHelp(): void {
   console.log(`hedera-harness
 
 Usage:
+  hedera-harness lab onboard <inspect|init|approve|check> [--workspace <path>]
   hedera-harness lab run <scenario.yaml> [--workspace <path>] [--output <path>]
   hedera-harness lab doctor <scenario.yaml> [--workspace <path>]
   hedera-harness lab up

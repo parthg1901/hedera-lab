@@ -16,7 +16,10 @@
     "examples/lab-ticketing",
     "docs",
     "examples/verification",
-    "examples/preflight"
+    "examples/preflight",
+    "examples/grant-flow",
+    "examples/team-payouts",
+    "skills/hedera-lab"
   ],
   "scripts": {
     "clean": "rm -rf dist",
