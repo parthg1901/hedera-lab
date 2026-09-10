@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -euo pipefail
+# This wrapper controls only the dedicated rootless daemon, never /var/run/docker.sock.
+service_uid=$(id -u hedera-lab)
+exec sudo -n -u hedera-lab env \
+  XDG_RUNTIME_DIR="/run/user/$service_uid" \
+  DOCKER_HOST="unix:///run/user/$service_uid/docker.sock" \
+  PATH=/opt/hedera-docker/29.8.0/bin:/usr/bin:/bin \
+  /opt/hedera-docker/29.8.0/bin/docker "$@"

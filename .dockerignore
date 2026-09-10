@@ -1,0 +1,12 @@
+.git
+node_modules
+dist
+.harness
+.tmp-test
+.env
+.env.*
+**/lab-recovery.json
+**/lab-recovery.json.tmp
+**/customer-token
+**/state.json
+**/state.json.tmp

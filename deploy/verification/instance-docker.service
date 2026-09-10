@@ -1,0 +1,19 @@
+[Unit]
+Description=Hedera Lab dedicated rootless Docker
+After=network-online.target
+[Service]
+Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/hedera-docker/29.8.0/bin
+Environment=DOCKERD_ROOTLESS_ROOTLESSKIT_NET=slirp4netns
+Environment=DOCKERD_ROOTLESS_ROOTLESSKIT_DISABLE_HOST_LOOPBACK=true
+Environment=DOCKERD_ROOTLESS_ROOTLESSKIT_DETACH_NETNS=false
+ExecStart=/opt/hedera-docker/29.8.0/bin/dockerd-rootless.sh
+Restart=on-failure
+RestartSec=5
+TimeoutStartSec=120
+TimeoutStopSec=120
+Delegate=yes
+KillMode=mixed
+LimitNOFILE=65536
+TasksMax=768
+[Install]
+WantedBy=default.target

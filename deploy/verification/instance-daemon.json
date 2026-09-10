@@ -1,0 +1,1 @@
+{"log-driver":"local","log-opts":{"max-size":"10m","max-file":"3"},"max-concurrent-downloads":2,"default-address-pools":[{"base":"10.237.0.0/16","size":24}]}

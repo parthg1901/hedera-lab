@@ -1,0 +1,10 @@
+[Unit]
+Description=Hedera Lab UID-scoped private-network and metadata egress protection
+Before=user@1002.service
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/sbin/nft -f /etc/hedera-lab/egress.nft
+ExecStop=/usr/sbin/nft delete table inet hedera_lab_egress
+[Install]
+WantedBy=multi-user.target
