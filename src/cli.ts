@@ -36,6 +36,9 @@ export function printHelp(): void {
   console.log(`hedera-harness
 
 Usage:
+  hedera-harness lab run <scenario.yaml> [--workspace <path>] [--output <path>]
+  hedera-harness lab doctor <scenario.yaml> [--workspace <path>]
+  hedera-harness lab up
   hedera-harness init [target-dir] [--repo <url>] [--ref <branch>] [--template <name>] [--skip-install]
   hedera-harness run [spec] [--max-attempts <count>] [--new] [--continue <branch>]
   hedera-harness doctor [spec] [--workspace <path>] [--recipe-only]

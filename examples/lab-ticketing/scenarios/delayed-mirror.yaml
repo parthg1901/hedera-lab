@@ -1,0 +1,58 @@
+schemaVersion: 1
+name: Purchase survives delayed mirror visibility
+network:
+  mode: simulated
+fixtures:
+  accounts:
+    organizer:
+      hbar: 100
+    customer:
+      hbar: 10
+  tokens:
+    ticket:
+      treasury: organizer
+      supply: 1
+  topics:
+    - attendance
+timeoutMs: 3000
+pollIntervalMs: 50
+server:
+  command: node server.mjs
+  url: http://127.0.0.1:3000
+  timeoutMs: 10000
+faults:
+  mirrorDelayMs: 700
+steps:
+  - id: open
+    browser:
+      type: goto
+      path: /
+  - id: buy
+    browser:
+      type: click
+      selector: "#buy"
+  - id: purchase-ui
+    assert:
+      type: text
+      selector: "#status"
+      equals: Ticket purchased
+  - id: ownership
+    assert:
+      type: nftOwner
+      token: ticket
+      serial: 1
+      account: customer
+  - id: check-in
+    browser:
+      type: click
+      selector: "#check-in"
+  - id: attendance-ui
+    assert:
+      type: text
+      selector: "#status"
+      equals: Checked in
+  - id: attendance-record
+    assert:
+      type: topicMessage
+      topic: attendance
+      message: ticket:1:customer

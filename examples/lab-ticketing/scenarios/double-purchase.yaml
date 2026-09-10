@@ -1,0 +1,57 @@
+schemaVersion: 1
+name: Repeated purchase is idempotent
+network:
+  mode: simulated
+fixtures:
+  accounts:
+    organizer:
+      hbar: 100
+    customer:
+      hbar: 10
+  tokens:
+    ticket:
+      treasury: organizer
+      supply: 1
+  topics:
+    - attendance
+timeoutMs: 3000
+pollIntervalMs: 50
+server:
+  command: node server.mjs
+  url: http://127.0.0.1:3000
+  timeoutMs: 10000
+steps:
+  - id: open
+    browser:
+      type: goto
+      path: /
+  - id: buy
+    browser:
+      type: click
+      selector: "#buy"
+  - id: purchase-ui
+    assert:
+      type: text
+      selector: "#status"
+      equals: Ticket purchased
+  - id: ownership
+    assert:
+      type: nftOwner
+      token: ticket
+      serial: 1
+      account: customer
+  - id: buy-again
+    browser:
+      type: click
+      selector: "#buy"
+  - id: still-purchased
+    assert:
+      type: text
+      selector: "#status"
+      equals: Ticket purchased
+  - id: still-owned
+    assert:
+      type: nftOwner
+      token: ticket
+      serial: 1
+      account: customer

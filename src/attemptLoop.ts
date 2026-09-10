@@ -1,3 +1,4 @@
+import { prepareScenarios } from "./lab/runner.js";
 import path from "node:path";
 import { CommandAgentProvider } from "./providers/commandAgentProvider.js";
 import { selectModel, withModel } from "./modelSelection.js";
@@ -143,6 +144,7 @@ export async function runAttemptLoop(input: AttemptLoopInput): Promise<RunReport
   let attempts = input.startingAttempt - 1;
   let attemptsThisCycle = 0;
   let validation: ValidationResult = notRunYet();
+  const labScenarios = await prepareScenarios(spec.labScenarioPaths ?? []);
   let latestPrompt = await promptStrategy.buildInitialPrompt(isContinue, cycle);
   let openFindingIds = input.previousOpenFindingIds ?? [];
   let previousFindings: ValidationFinding[] = [];
@@ -153,6 +155,7 @@ export async function runAttemptLoop(input: AttemptLoopInput): Promise<RunReport
     attemptsThisCycle += 1;
 
     const context: AttemptStageContext = {
+      labScenarios,
       attempt: attempts,
       spec,
       workspacePath,
@@ -175,7 +178,7 @@ export async function runAttemptLoop(input: AttemptLoopInput): Promise<RunReport
       cycle,
       attemptsThisCycle,
       prompt: latestPrompt,
-      model: choice,
+      model: spec.generator.args?.includes(AGENT_PRESETS[spec.agent].modelFlag) ? choice : undefined,
     });
 
     const generatorConfig = withModel(
@@ -207,7 +210,7 @@ export async function runAttemptLoop(input: AttemptLoopInput): Promise<RunReport
 
     await recordAttemptResult({ layout, attempt: attempts, validation, delta });
 
-    if (validation.semanticValidation?.infrastructureFailure) {
+    if (validation.infrastructureFailure || validation.semanticValidation?.infrastructureFailure) {
       await abortOnInfrastructureFailure({ layout, attempt: attempts, validation });
       await checkpoint({ layout, commitAttempt, workspacePath, attempt: attempts, validation });
       break;
@@ -219,7 +222,7 @@ export async function runAttemptLoop(input: AttemptLoopInput): Promise<RunReport
       validation.passed
         ? validation.semanticValidation
           ? "Deterministic, Playwright gate, and semantic validation passed."
-          : "Deterministic validation passed."
+          : validation.labReports?.length ? "Deterministic validation and Lab scenarios passed." : "Deterministic validation passed."
         : [
             formatFindingDelta(delta),
             ...validation.findings

@@ -181,6 +181,7 @@ export const KNOWN_SPEC_KEYS = new Set([
   "forbiddenFiles",
   "secretScan",
   "chainValidation",
+  "lab",
   "baseline",
   "extend",
   "maxAttempts",

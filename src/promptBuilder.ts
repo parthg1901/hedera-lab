@@ -126,7 +126,7 @@ export async function buildRepairPrompt(
   attempt: number,
   vendoredContext?: VendoredContext,
 ): Promise<string> {
-  const actionable = findings.filter(finding => finding.category !== "semantic-infra");
+  const actionable = findings.filter(finding => finding.category !== "semantic-infra" && finding.category !== "lab-infra");
   const scope = classifyRepairScope(actionable);
   const contractPath = vendoredContext?.contractRelativePath ?? VENDORED_CONTRACT_PATH;
   const prdPath = vendoredContext?.prdRelativePath ?? VENDORED_PRD_PATH;
@@ -167,7 +167,7 @@ export async function buildRepairPrompt(
 }
 
 export function classifyRepairScope(findings: ValidationFinding[]): RepairScope {
-  const actionable = findings.filter(finding => finding.category !== "semantic-infra");
+  const actionable = findings.filter(finding => finding.category !== "semantic-infra" && finding.category !== "lab-infra");
   if (actionable.length === 0) {
     return "broad";
   }
@@ -349,7 +349,8 @@ function formatHardConstraints(spec: TemplateSpec): string {
   return [
     "## Hard Constraints",
     "- Keep all changes inside the current workspace.",
-    "- Use Yarn workspace commands only.",
+    spec.constraints?.packageManager ? `- Use ${spec.constraints.packageManager} commands.` : "- Use the project's configured package manager.",
+    spec.labScenarioPaths?.length ? `- Lab scenario contracts are immutable. Repair application code only. Scenarios: ${spec.labScenarioPaths.join(", ")}` : undefined,
     spec.constraints?.forbiddenWorkspaces?.length
       ? `- Forbidden workspaces: ${spec.constraints.forbiddenWorkspaces.join(", ")}`
       : undefined,
@@ -357,7 +358,7 @@ function formatHardConstraints(spec: TemplateSpec): string {
       ? `- Forbidden commands: ${spec.constraints.forbiddenCommands.join(", ")}`
       : undefined,
     "- Do not add `.env` files, private keys, API keys, or live-network credential requirements.",
-    "- Produce `template.json`, `README.md`, and `AGENTS.md` suitable for scaffold-hbar.",
+    !spec.labScenarioPaths?.length ? "- Produce `template.json`, `README.md`, and `AGENTS.md` suitable for scaffold-hbar." : "- Preserve the app structure and obey the PRD edit scope.",
   ]
     .filter((line): line is string => Boolean(line))
     .join("\n");

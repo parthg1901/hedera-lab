@@ -59,6 +59,8 @@ export const HARNESS_SECRET_PATH_MARKERS = [
   /(^|\/)\.env(\.|$)/i,
   /(^|\/)secrets?\//i,
   /(^|\/)chain-signer\.json$/i,
+  /(^|\/)customer-token$/i,
+  /(^|\/)lab-recovery\.json(\.tmp)?$/i,
   /\.pem$/i,
   /\.key$/i,
   /(^|\/)credentials\.json$/i,

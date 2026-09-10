@@ -1,0 +1,32 @@
+schemaVersion: 1
+name: Insufficient funds preserves balances
+network:
+  mode: simulated
+fixtures:
+  accounts:
+    organizer:
+      hbar: 100
+    customer:
+      hbar: 10
+  tokens:
+    ticket:
+      treasury: organizer
+      supply: 1
+  topics:
+    - attendance
+timeoutMs: 3000
+pollIntervalMs: 50
+steps:
+  - id: too-much
+    operation:
+      type: transferHbar
+      actor: customer
+      to: organizer
+      amount: 20
+    expectStatus: INSUFFICIENT_ACCOUNT_BALANCE
+  - id: customer-balance
+    assert:
+      type: hbarBalance
+      account: customer
+      min: 10
+      max: 10

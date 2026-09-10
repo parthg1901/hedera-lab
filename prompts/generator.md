@@ -44,7 +44,7 @@ Use only the vendored skills under `{{skillsRoot}}/`.
 {{/hasSkills}}
 
 ## Logging Requirement
-After making meaningful changes, append a short note to `GENERATION_NOTES.md` at the workspace root.
+After making meaningful changes, append a short note to `GENERATION_NOTES.md` at the workspace root, unless the PRD restricts edits to specified files. In that case, put the note in your final response.
 - Do not read or write files outside the current workspace.
 - Do not delete or rewrite unrelated existing features.
 

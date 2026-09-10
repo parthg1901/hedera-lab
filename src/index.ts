@@ -9,6 +9,12 @@ async function main(): Promise<void> {
     return;
   }
 
+  if (args[0] === "lab") {
+    const { runLabCli } = await import("./lab/cli.js");
+    await runLabCli(args.slice(1));
+    return;
+  }
+
   const parsed = parseCliArgs(args);
   await runCli(parsed);
 }

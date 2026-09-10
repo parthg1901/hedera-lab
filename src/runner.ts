@@ -1,3 +1,4 @@
+import { runLabGate } from "./lab/gate.js";
 import path from "node:path";
 import { access } from "node:fs/promises";
 import {
@@ -44,7 +45,13 @@ export async function validateWorkspace(options: CliOptions) {
 
   // Project-centric recipes omit `seed`; validate only needs deterministic gates.
   const loaded = await loadTemplateSpec(options.specPath);
-  return runDeterministicValidation(workspacePath, loaded.spec);
+  const result = await runDeterministicValidation(workspacePath, loaded.spec);
+  if (result.passed && loaded.spec.labScenarioPaths?.length) {
+    const lab = await runLabGate({ workspace: workspacePath, files: loaded.spec.labScenarioPaths,
+      output: path.join(workspacePath, ".harness/runs/lab", `validate-${Date.now()}`) });
+    return { ...result, ...lab, findings: [...result.findings, ...lab.findings] };
+  }
+  return result;
 }
 
 /**

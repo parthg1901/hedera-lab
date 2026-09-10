@@ -1,3 +1,4 @@
+import { loadScenario } from "./lab/schema.js";
 import path from "node:path";
 import { access } from "node:fs/promises";
 import { commandExists, readGitRepoSnapshot } from "./harnessGit.js";
@@ -66,6 +67,14 @@ export async function runDoctor(
     checks.push(await checkPromptOverrides(spec.projectRoot));
     checks.push(...(await checkOptionalDeps(spec, workspacePath)));
     checks.push(...checkChainEnv(spec));
+    for (const file of spec.labScenarioPaths ?? []) {
+      try {
+        const { scenario } = await loadScenario(file);
+        checks.push({ name: "lab scenario", status: "ok", detail: `${file}: ${scenario.steps.length} steps (${scenario.network.mode})` });
+      } catch (error) {
+        checks.push({ name: "lab scenario", status: "fail", detail: error instanceof Error ? error.message : String(error), fix: `Check ${file}` });
+      }
+    }
   }
 
   return { checks, passed: checks.every(check => check.status !== "fail") };

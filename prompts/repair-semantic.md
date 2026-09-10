@@ -28,3 +28,5 @@ Prefer small, local UI/copy/state fixes on the cited routes.
 
 Append a brief repair note to `GENERATION_NOTES.md` listing which assertion ids you fixed.
 - Do not read or write files outside the current workspace.
+
+If the PRD restricts edits to specified files, do not create or edit notes outside that list; summarize your work in your final response instead.

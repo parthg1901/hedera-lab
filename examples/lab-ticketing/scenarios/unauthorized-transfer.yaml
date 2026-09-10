@@ -1,0 +1,33 @@
+schemaVersion: 1
+name: Non-owner cannot transfer ticket
+network:
+  mode: simulated
+fixtures:
+  accounts:
+    organizer:
+      hbar: 100
+    customer:
+      hbar: 10
+  tokens:
+    ticket:
+      treasury: organizer
+      supply: 1
+  topics:
+    - attendance
+timeoutMs: 3000
+pollIntervalMs: 50
+steps:
+  - id: wrong-sender
+    operation:
+      type: transferNft
+      actor: customer
+      to: organizer
+      token: ticket
+      serial: 1
+    expectStatus: SENDER_DOES_NOT_OWN_NFT_SERIAL_NO
+  - id: unchanged-owner
+    assert:
+      type: nftOwner
+      token: ticket
+      serial: 1
+      account: organizer

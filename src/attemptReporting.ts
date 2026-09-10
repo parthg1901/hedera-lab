@@ -122,7 +122,7 @@ export async function recordAttemptResult(input: {
     openFindingIds: delta.open,
     fixedFindingIds: delta.fixed,
     semanticPassed: validation.semanticValidation?.passed,
-    infrastructureFailure: validation.semanticValidation?.infrastructureFailure ?? false,
+    infrastructureFailure: validation.infrastructureFailure || validation.semanticValidation?.infrastructureFailure || false,
   });
 
   const summary = validation.semanticValidation
@@ -134,7 +134,7 @@ export async function recordAttemptResult(input: {
     : validation.passed
       ? (validation.playwrightGate
           ? `playwright gate passed (${validation.playwrightGate.routes.length} routes)`
-          : "deterministic gates passed")
+          : validation.labReports?.length ? "deterministic gates and Lab scenarios passed" : "deterministic gates passed")
       : formatFindingDelta(delta);
 
   console.log(
@@ -150,7 +150,8 @@ export async function abortOnInfrastructureFailure(input: {
   const { layout, attempt, validation } = input;
   const reason =
     validation.semanticValidation?.infrastructureFailureReason ??
-    "semantic infrastructure failure";
+    validation.findings.find(f => f.category === "lab-infra")?.message ??
+    "validation infrastructure failure";
 
   await appendHarnessLog(layout.jsonlLogPath, {
     type: "validator_infra_aborted",

@@ -13,6 +13,8 @@ export interface DevServerHandle {
 }
 
 export interface DevServerConfig {
+  /** Additional environment for a harness-owned local test adapter. */
+  env?: Record<string, string>;
   command: string;
   configuredUrl: string;
   timeoutMs: number;
@@ -32,7 +34,7 @@ export async function createDevServerSession(
   config: DevServerConfig,
   logPrefix = "dev",
 ): Promise<DevServerSession> {
-  const handle = startDevServer(workspacePath, config.command, config.configuredUrl, logPrefix);
+  const handle = startDevServer(workspacePath, config.command, config.configuredUrl, logPrefix, config.env);
 
   let url: string;
   try {
@@ -85,6 +87,7 @@ export function startDevServer(
   command: string,
   configuredUrl: string,
   logPrefix = "playwright",
+  extraEnv: Record<string, string> = {},
 ): DevServerHandle {
   let resolveUrl: (url: string) => void = () => undefined;
   let rejectUrl: (error: Error) => void = () => undefined;
@@ -126,6 +129,7 @@ export function startDevServer(
     stdio: ["ignore", "pipe", "pipe"],
     env: {
       ...process.env,
+      ...extraEnv,
       FORCE_COLOR: "0",
     },
   });

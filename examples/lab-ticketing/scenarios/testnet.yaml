@@ -1,0 +1,48 @@
+schemaVersion: 1
+name: Testnet HTS and HCS workflow
+network:
+  mode: testnet
+fixtures:
+  accounts:
+    organizer:
+      hbar: 5
+    customer:
+      hbar: 5
+  tokens:
+    ticket:
+      treasury: organizer
+      supply: 1
+  topics:
+    - attendance
+timeoutMs: 30000
+pollIntervalMs: 500
+steps:
+  - id: associate
+    operation:
+      type: associate
+      actor: customer
+      token: ticket
+  - id: transfer
+    operation:
+      type: transferNft
+      actor: organizer
+      to: customer
+      token: ticket
+      serial: 1
+  - id: ownership
+    assert:
+      type: nftOwner
+      token: ticket
+      serial: 1
+      account: customer
+  - id: submit
+    operation:
+      type: submitMessage
+      actor: customer
+      topic: attendance
+      message: ticket:1:customer
+  - id: attendance-record
+    assert:
+      type: topicMessage
+      topic: attendance
+      message: ticket:1:customer

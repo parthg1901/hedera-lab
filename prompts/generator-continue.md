@@ -46,3 +46,5 @@ Pass deterministic validation and any enabled Playwright + semantic contract che
 
 Append a brief note to `GENERATION_NOTES.md` describing what you changed for this continue cycle.
 - Do not read or write files outside the current workspace.
+
+If the PRD restricts edits to specified files, do not create or edit notes outside that list; summarize your work in your final response instead.

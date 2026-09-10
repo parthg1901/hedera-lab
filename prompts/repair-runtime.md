@@ -39,3 +39,5 @@ Do not redesign unrelated features.
 
 Append a brief repair note to `GENERATION_NOTES.md`.
 - Do not read or write files outside the current workspace.
+
+If the PRD restricts edits to specified files, do not create or edit notes outside that list; summarize your work in your final response instead.

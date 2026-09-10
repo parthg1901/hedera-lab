@@ -1,19 +1,20 @@
 {
   "name": "hedera-harness",
   "version": "1.2.2",
-  "description": "Agentic harness for scaffolding and iteratively developing hedera dapps projects (init + run).",
+  "description": "Hedera Lab: independent application verification, agent repair, and budget-aware paid testing built on Hedera Harness.",
   "type": "module",
   "bin": {
     "hedera-harness": "./dist/index.js"
   },
   "files": [
-    "dist",
     "skills-index.json",
     "prompts",
     "skeletons",
     "CHANGELOG.md",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "examples/lab-ticketing",
+    "docs"
   ],
   "scripts": {
     "clean": "rm -rf dist",
@@ -26,7 +27,10 @@
     "smoke:pack": "bash scripts/smoke-pack.sh",
     "prepublishOnly": "npm run typecheck && npm test && npm run build",
     "check:templates": "bash scripts/check-template-recipes.sh",
-    "test:browser": "npm run build --silent && node --test test/browser/*.test.mjs"
+    "test:browser": "npm run build --silent && node --test test/browser/*.test.mjs",
+    "test:lab": "npm run build --silent && node --test test/lab*.test.mjs",
+    "lab:demo": "npm run build --silent && node dist/index.js lab run examples/lab-ticketing/scenarios/purchase.yaml --workspace examples/lab-ticketing",
+    "lab:agent": "npm run build --silent && node scripts/lab-agent-eval.mjs"
   },
   "engines": {
     "node": ">=20"
@@ -34,11 +38,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/hedera-dev/hedera-harness.git"
+    "url": "git+https://github.com/parthg1901/hedera-lab.git"
   },
-  "homepage": "https://github.com/hedera-dev/hedera-harness#readme",
+  "homepage": "https://github.com/parthg1901/hedera-lab#readme",
   "bugs": {
-    "url": "https://github.com/hedera-dev/hedera-harness/issues"
+    "url": "https://github.com/parthg1901/hedera-lab/issues"
   },
   "keywords": [
     "hedera",
@@ -67,5 +71,16 @@
     "@types/node": "^26.1.0",
     "playwright": "^1.61.1",
     "typescript": "^6.0.3"
+  },
+  "overrides": {
+    "@hiero-ledger/proto": {
+      "protobufjs": "8.8.0"
+    },
+    "@hiero-ledger/sdk": {
+      "ethers": "6.17.0"
+    },
+    "ethers": {
+      "ws": "8.21.3"
+    }
   }
 }

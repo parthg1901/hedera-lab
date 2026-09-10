@@ -1,3 +1,5 @@
+import { runLabGate } from "./lab/gate.js";
+import type { PreparedScenario } from "./lab/runner.js";
 import path from "node:path";
 import { CommandAgentProvider } from "./providers/commandAgentProvider.js";
 import { appendHarnessLog, writeJsonFile, writeStatusFile, type RunLayout } from "./runArtifacts.js";
@@ -38,6 +40,7 @@ export const STAGE_NAMES = ["GENERATE", "ASSERT", "SMOKE", "EVALUATE"] as const;
 export type StageName = (typeof STAGE_NAMES)[number];
 
 export interface AttemptStageContext {
+  labScenarios?: PreparedScenario[];
   attempt: number;
   spec: TemplateSpec;
   workspacePath: string;
@@ -315,6 +318,16 @@ export async function runValidationStages(
   if (generateFinding || !deterministicClean) {
     logStage("SMOKE", "skipped — deterministic gates are not clean");
     return validation;
+  }
+  if (context.spec.labScenarioPaths?.length) {
+    console.log("[hedera-harness] LAB — running scenario contracts");
+    const lab = await runLabGate({ workspace: context.workspacePath, files: context.spec.labScenarioPaths,
+      prepared: context.labScenarios, output: path.join(context.layout.logsDirectory, `lab-attempt-${context.attempt}`) });
+    validation.labReports = lab.labReports;
+    validation.infrastructureFailure = lab.infrastructureFailure;
+    validation.findings.push(...lab.findings);
+    validation.passed = validation.passed && lab.passed;
+    if (!validation.passed) return validation;
   }
   if (!usesSharedDevServer) {
     return validation;

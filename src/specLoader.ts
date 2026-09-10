@@ -46,6 +46,7 @@ export async function loadTemplateSpec(specPath: string): Promise<LoadedTemplate
 
   const spec: TemplateSpec = {
     schemaVersion,
+    labScenarioPaths: readLabScenarios(parsed, projectRoot),
     projectRoot,
     name: readString(parsed, "name"),
     description: readOptionalString(parsed, "description"),
@@ -587,4 +588,13 @@ function readChainValidation(parsed: Record<string, unknown>): ChainValidationCo
     },
     deploy,
   };
+}
+
+function readLabScenarios(parsed: Record<string, unknown>, projectRoot: string): string[] | undefined {
+  if (parsed.lab === undefined) return undefined;
+  const lab = readObject(parsed, "lab");
+  if (Object.keys(lab).some(k => k !== "scenarios")) throw new Error("Unknown lab configuration field; expected scenarios");
+  const files = readStringArray(lab, "scenarios");
+  if (!files.length || files.some(f => !f.trim()) || new Set(files).size !== files.length) throw new Error("lab.scenarios must contain unique, nonempty paths");
+  return files.map(file => resolveProjectPath(projectRoot, file));
 }

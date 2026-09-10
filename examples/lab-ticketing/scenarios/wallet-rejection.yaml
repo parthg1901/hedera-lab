@@ -1,0 +1,45 @@
+schemaVersion: 1
+name: Rejected signing leaves ownership unchanged
+network:
+  mode: simulated
+fixtures:
+  accounts:
+    organizer:
+      hbar: 100
+    customer:
+      hbar: 10
+  tokens:
+    ticket:
+      treasury: organizer
+      supply: 1
+  topics:
+    - attendance
+timeoutMs: 3000
+pollIntervalMs: 50
+server:
+  command: node server.mjs
+  url: http://127.0.0.1:3000
+  timeoutMs: 10000
+faults:
+  rejectActors:
+    - customer
+steps:
+  - id: open
+    browser:
+      type: goto
+      path: /
+  - id: buy
+    browser:
+      type: click
+      selector: "#buy"
+  - id: rejection-ui
+    assert:
+      type: text
+      selector: "#status"
+      equals: Wallet rejected
+  - id: unchanged-owner
+    assert:
+      type: nftOwner
+      token: ticket
+      serial: 1
+      account: organizer

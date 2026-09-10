@@ -34,3 +34,18 @@ docs/prds/local/
 coverage/
 test-results/
 playwright-report/
+
+# Hedera Lab reports and isolated experiment workspaces
+**/.harness/runs/
+
+# Disposable live fixture recovery secrets
+lab-recovery.json
+lab-recovery.json.tmp
+
+# Verification service customer authorization
+customer-token
+
+# Generated evidence belongs in local runs or separately reviewed release attachments
+/docs/**/evidence/
+/docs/evidence/
+*.bundle

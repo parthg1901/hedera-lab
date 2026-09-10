@@ -188,6 +188,8 @@ export interface BaselineConfig {
 }
 
 export interface TemplateSpec {
+  /** Scenario contracts captured before the agent runs. */
+  labScenarioPaths?: string[];
   /** Recipe schema version. Absent in the file means 1 (the original schema). */
   schemaVersion: number;
   /** Directory containing `.harness/`. Used to resolve prompt overrides. */
@@ -283,7 +285,9 @@ export interface ValidationFinding {
     | "agent"
     | "playwright"
     | "semantic"
-    | "semantic-infra";
+    | "semantic-infra"
+    | "lab"
+    | "lab-infra";
   message: string;
   details?: string;
   /**
@@ -298,6 +302,8 @@ export interface ValidationFinding {
 }
 
 export interface ValidationResult {
+  labReports?: import("./lab/types.js").LabReport[];
+  infrastructureFailure?: boolean;
   passed: boolean;
   findings: ValidationFinding[];
   commandResults: CommandExecutionResult[];

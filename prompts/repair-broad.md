@@ -45,3 +45,5 @@ Fix only the validation findings below. Do not redesign unrelated parts of the a
 
 Append a brief repair note to `GENERATION_NOTES.md` at the workspace root, describing what failed and what you changed.
 - Do not read or write files outside the current workspace.
+
+If the PRD restricts edits to specified files, do not create or edit notes outside that list; summarize your work in your final response instead.
