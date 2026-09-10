@@ -1,0 +1,57 @@
+{
+  "target": "verifier-exchange",
+  "packs": [
+    {
+      "id": "payment-replay",
+      "title": "Payment replay",
+      "description": "Nine repeated paid-job requests must cause one settlement and one execution.",
+      "priceTinybar": "700000",
+      "scenario": "protocols/payment-replay.json",
+      "workspace": "../../dist/verification",
+      "driver": "exchange-protocol",
+      "risks": [
+        "payment",
+        "replay"
+      ]
+    },
+    {
+      "id": "budget-race",
+      "title": "Concurrent spending",
+      "description": "Competing quotes cannot reserve more than the customer budget.",
+      "priceTinybar": "900000",
+      "scenario": "protocols/budget-race.json",
+      "workspace": "../../dist/verification",
+      "driver": "exchange-protocol",
+      "risks": [
+        "payment",
+        "concurrency"
+      ]
+    },
+    {
+      "id": "payment-timeout",
+      "title": "Unknown settlement",
+      "description": "A lost settlement response must retain budget and prevent blind resubmission.",
+      "priceTinybar": "1200000",
+      "scenario": "protocols/payment-timeout.json",
+      "workspace": "../../dist/verification",
+      "driver": "exchange-protocol",
+      "risks": [
+        "payment",
+        "recovery"
+      ]
+    },
+    {
+      "id": "service-delivery",
+      "title": "Paid service delivery",
+      "description": "An unpaid job must not run; a paid job must deliver its executor evidence and report hash.",
+      "priceTinybar": "500000",
+      "scenario": "protocols/service-delivery.json",
+      "workspace": "../../dist/verification",
+      "driver": "exchange-protocol",
+      "risks": [
+        "payment",
+        "delivery"
+      ]
+    }
+  ]
+}

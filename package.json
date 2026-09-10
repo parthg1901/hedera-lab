@@ -14,7 +14,9 @@
     "README.md",
     "LICENSE",
     "examples/lab-ticketing",
-    "docs"
+    "docs",
+    "examples/verification",
+    "examples/preflight"
   ],
   "scripts": {
     "clean": "rm -rf dist",
@@ -30,7 +32,9 @@
     "test:browser": "npm run build --silent && node --test test/browser/*.test.mjs",
     "test:lab": "npm run build --silent && node --test test/lab*.test.mjs",
     "lab:demo": "npm run build --silent && node dist/index.js lab run examples/lab-ticketing/scenarios/purchase.yaml --workspace examples/lab-ticketing",
-    "lab:agent": "npm run build --silent && node scripts/lab-agent-eval.mjs"
+    "lab:agent": "npm run build --silent && node scripts/lab-agent-eval.mjs",
+    "verify:demo": "npm run build --silent && node dist/index.js verify demo",
+    "verify:serve": "npm run build --silent && node dist/index.js verify serve"
   },
   "engines": {
     "node": ">=20"

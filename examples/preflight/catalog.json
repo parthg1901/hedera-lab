@@ -1,0 +1,19 @@
+{
+  "target": "sauce-approval-mainnet",
+  "packs": [
+    {
+      "id": "approval-preflight",
+      "title": "Mainnet approval verification",
+      "description": "Simulate a SAUCE approval at a fixed mainnet block; check customer-authorized caller, token, spender, allowance and gas. No transaction submission.",
+      "priceTinybar": "1000000",
+      "driver": "mainnet-preflight",
+      "scenario": "scenario.json",
+      "workspace": ".",
+      "risks": [
+        "ownership",
+        "payment",
+        "authorization"
+      ]
+    }
+  ]
+}

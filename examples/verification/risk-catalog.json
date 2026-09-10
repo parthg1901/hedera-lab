@@ -1,0 +1,80 @@
+{
+  "target": "ticketing-browser",
+  "packs": [
+    {
+      "id": "purchase",
+      "title": "Purchase & check-in",
+      "description": "Chromium UI actions verified against NFT ownership and HCS messages.",
+      "priceTinybar": "1000000",
+      "scenario": "../lab-ticketing/scenarios/purchase.yaml",
+      "workspace": "../lab-ticketing",
+      "risks": [
+        "ownership",
+        "delivery"
+      ]
+    },
+    {
+      "id": "mirror-lag",
+      "title": "Delayed mirror visibility",
+      "description": "Check that a successful transfer is not reported as failed while indexing catches up.",
+      "priceTinybar": "1500000",
+      "scenario": "../lab-ticketing/scenarios/delayed-mirror.yaml",
+      "workspace": "../lab-ticketing",
+      "risks": [
+        "recovery"
+      ]
+    },
+    {
+      "id": "purchase-replay",
+      "title": "Purchase replay",
+      "description": "Exactly one NFT transfer for repeated purchase requests.",
+      "priceTinybar": "700000",
+      "scenario": "protocols/purchase-replay.json",
+      "workspace": "../lab-ticketing",
+      "driver": "ticket-protocol",
+      "risks": [
+        "replay",
+        "ownership"
+      ]
+    },
+    {
+      "id": "checkin-replay",
+      "title": "Attendance replay",
+      "description": "Exactly one HCS submission for repeated check-in requests.",
+      "priceTinybar": "700000",
+      "scenario": "protocols/checkin-replay.json",
+      "workspace": "../lab-ticketing",
+      "driver": "ticket-protocol",
+      "risks": [
+        "replay",
+        "delivery"
+      ]
+    },
+    {
+      "id": "concurrent-purchase",
+      "title": "Concurrent purchase",
+      "description": "Eight concurrent requests must share one NFT transfer.",
+      "priceTinybar": "1200000",
+      "scenario": "protocols/concurrent-purchase.json",
+      "workspace": "../lab-ticketing",
+      "driver": "ticket-protocol",
+      "risks": [
+        "concurrency",
+        "ownership"
+      ]
+    },
+    {
+      "id": "timeout-recovery",
+      "title": "Ambiguous outcomes and retry safety",
+      "description": "Check lost transfer responses with stale mirror state, pending HCS outcomes, concurrent check-ins, and retry after explicit rejection.",
+      "priceTinybar": "1500000",
+      "scenario": "protocols/timeout-recovery.json",
+      "workspace": "../lab-ticketing",
+      "driver": "ticket-protocol",
+      "risks": [
+        "recovery",
+        "replay"
+      ]
+    }
+  ]
+}

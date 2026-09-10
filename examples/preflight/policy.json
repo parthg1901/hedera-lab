@@ -1,0 +1,10 @@
+{
+  "integration": "saucerswap-sauce-approval-v1",
+  "network": "hedera-mainnet",
+  "owner": "0x0000000000000000000000000000000000a5819a",
+  "token": "0x00000000000000000000000000000000000b2ad5",
+  "spender": "0x00000000000000000000000000000000002e7a5d",
+  "minAllowance": "100000000",
+  "maxAllowance": "10000000000",
+  "maxGas": 1000000
+}

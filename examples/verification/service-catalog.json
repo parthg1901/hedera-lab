@@ -1,0 +1,132 @@
+{
+  "target": "hedera-lab-registered-examples",
+  "packs": [
+    {
+      "id": "purchase",
+      "title": "Purchase & check-in",
+      "description": "Chromium UI actions verified against NFT ownership and HCS messages.",
+      "priceTinybar": "1000000",
+      "scenario": "../lab-ticketing/scenarios/purchase.yaml",
+      "workspace": "../lab-ticketing",
+      "risks": [
+        "ownership",
+        "delivery"
+      ]
+    },
+    {
+      "id": "mirror-lag",
+      "title": "Delayed mirror visibility",
+      "description": "Check that a successful transfer is not reported as failed while indexing catches up.",
+      "priceTinybar": "1500000",
+      "scenario": "../lab-ticketing/scenarios/delayed-mirror.yaml",
+      "workspace": "../lab-ticketing",
+      "risks": [
+        "recovery"
+      ]
+    },
+    {
+      "id": "purchase-replay",
+      "title": "Purchase replay",
+      "description": "Exactly one NFT transfer for repeated purchase requests.",
+      "priceTinybar": "700000",
+      "scenario": "protocols/purchase-replay.json",
+      "workspace": "../lab-ticketing",
+      "driver": "ticket-protocol",
+      "risks": [
+        "replay",
+        "ownership"
+      ]
+    },
+    {
+      "id": "checkin-replay",
+      "title": "Attendance replay",
+      "description": "Exactly one HCS submission for repeated check-in requests.",
+      "priceTinybar": "700000",
+      "scenario": "protocols/checkin-replay.json",
+      "workspace": "../lab-ticketing",
+      "driver": "ticket-protocol",
+      "risks": [
+        "replay",
+        "delivery"
+      ]
+    },
+    {
+      "id": "concurrent-purchase",
+      "title": "Concurrent purchase",
+      "description": "Eight concurrent requests must share one NFT transfer.",
+      "priceTinybar": "1200000",
+      "scenario": "protocols/concurrent-purchase.json",
+      "workspace": "../lab-ticketing",
+      "driver": "ticket-protocol",
+      "risks": [
+        "concurrency",
+        "ownership"
+      ]
+    },
+    {
+      "id": "timeout-recovery",
+      "title": "Ambiguous outcomes and retry safety",
+      "description": "Check lost transfer responses with stale mirror state, pending HCS outcomes, concurrent check-ins, and retry after explicit rejection.",
+      "priceTinybar": "1500000",
+      "scenario": "protocols/timeout-recovery.json",
+      "workspace": "../lab-ticketing",
+      "driver": "ticket-protocol",
+      "risks": [
+        "recovery",
+        "replay"
+      ]
+    },
+    {
+      "id": "local-ledger",
+      "title": "Local HTS / HCS verification",
+      "description": "Registered ticketing fixture: actual NFT transfer, attendance message, independent mirror checks and cleanup. Provider supplies capped testing funds.",
+      "priceTinybar": "2000000",
+      "scenario": "../lab-ticketing/scenarios/local.yaml",
+      "workspace": "../lab-ticketing",
+      "funding": {
+        "estimatedFeeTinybar": "2000000000",
+        "feeCeilingTinybar": "6000000000",
+        "cleanupReserveTinybar": "2000000000",
+        "perTransactionMaxTinybar": "200000000",
+        "tokenCreateMaxTinybar": "2000000000"
+      },
+      "risks": [
+        "ownership",
+        "delivery"
+      ]
+    },
+    {
+      "id": "testnet-ledger",
+      "title": "Testnet HTS / HCS verification",
+      "description": "Registered ticketing fixture: actual NFT transfer, attendance message, independent mirror checks and cleanup. Provider supplies capped testing funds.",
+      "priceTinybar": "2000000",
+      "scenario": "../lab-ticketing/scenarios/testnet.yaml",
+      "workspace": "../lab-ticketing",
+      "funding": {
+        "estimatedFeeTinybar": "2000000000",
+        "feeCeilingTinybar": "6000000000",
+        "cleanupReserveTinybar": "2000000000",
+        "perTransactionMaxTinybar": "200000000",
+        "tokenCreateMaxTinybar": "2000000000"
+      },
+      "risks": [
+        "ownership",
+        "delivery"
+      ]
+    },
+    {
+      "id": "approval-preflight",
+      "title": "Mainnet approval verification",
+      "description": "Simulate a SAUCE approval at a fixed mainnet block; check customer-authorized caller, token, spender, allowance and gas. No transaction submission.",
+      "priceTinybar": "1000000",
+      "driver": "mainnet-preflight",
+      "scenario": "../preflight/scenario.json",
+      "workspace": "../preflight",
+      "risks": [
+        "ownership",
+        "payment",
+        "authorization"
+      ]
+    }
+  ]
+}

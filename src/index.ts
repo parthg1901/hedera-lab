@@ -9,6 +9,18 @@ async function main(): Promise<void> {
     return;
   }
 
+  if (args[0] === "preflight") {
+    const { runPreflightCli } = await import("./preflight/cli.js");
+    await runPreflightCli(args.slice(1));
+    return;
+  }
+
+  if (args[0] === "verify") {
+    const { runVerificationCli } = await import("./verification/cli.js");
+    await runVerificationCli(args.slice(1));
+    return;
+  }
+
   if (args[0] === "lab") {
     const { runLabCli } = await import("./lab/cli.js");
     await runLabCli(args.slice(1));

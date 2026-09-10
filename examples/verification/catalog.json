@@ -1,0 +1,29 @@
+{
+  "target": "ticketing",
+  "packs": [
+    {
+      "id": "ledger",
+      "title": "Ownership & attendance",
+      "description": "Verify NFT ownership and the exact HCS attendance message.",
+      "priceTinybar": "1000000",
+      "scenario": "../lab-ticketing/scenarios/ledger.yaml",
+      "workspace": "../lab-ticketing"
+    },
+    {
+      "id": "association",
+      "title": "Association failure & recovery",
+      "description": "Reject an unassociated recipient, then associate and verify transfer.",
+      "priceTinybar": "500000",
+      "scenario": "../lab-ticketing/scenarios/missing-association.yaml",
+      "workspace": "../lab-ticketing"
+    },
+    {
+      "id": "authorization",
+      "title": "Unauthorized transfer",
+      "description": "Prove that a non-owner cannot transfer the ticket.",
+      "priceTinybar": "500000",
+      "scenario": "../lab-ticketing/scenarios/unauthorized-transfer.yaml",
+      "workspace": "../lab-ticketing"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "target": "ticketing-browser",
+  "packs": [
+    {
+      "id": "purchase",
+      "title": "Purchase & check-in",
+      "description": "Chromium UI actions verified against NFT ownership and HCS messages.",
+      "priceTinybar": "1000000",
+      "scenario": "../lab-ticketing/scenarios/purchase.yaml",
+      "workspace": "../lab-ticketing"
+    },
+    {
+      "id": "mirror-lag",
+      "title": "Delayed mirror visibility",
+      "description": "Check that a successful transfer is not reported as failed while indexing catches up.",
+      "priceTinybar": "1500000",
+      "scenario": "../lab-ticketing/scenarios/delayed-mirror.yaml",
+      "workspace": "../lab-ticketing"
+    },
+    {
+      "id": "duplicate",
+      "title": "Repeated purchase",
+      "description": "Verify repeated purchase does not execute a second transfer.",
+      "priceTinybar": "1000000",
+      "scenario": "../lab-ticketing/scenarios/double-purchase.yaml",
+      "workspace": "../lab-ticketing"
+    }
+  ]
+}

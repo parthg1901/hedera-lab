@@ -39,6 +39,10 @@ Usage:
   hedera-harness lab run <scenario.yaml> [--workspace <path>] [--output <path>]
   hedera-harness lab doctor <scenario.yaml> [--workspace <path>]
   hedera-harness lab up
+  hedera-harness preflight [registered-workspace] [output-directory]
+  hedera-harness verify serve [--config <catalog.json>] [--mode simulated|testnet]
+  hedera-harness verify demo [--planner codex]
+  hedera-harness verify agent --url <url> --mandate <id> --pay yes
   hedera-harness init [target-dir] [--repo <url>] [--ref <branch>] [--template <name>] [--skip-install]
   hedera-harness run [spec] [--max-attempts <count>] [--new] [--continue <branch>]
   hedera-harness doctor [spec] [--workspace <path>] [--recipe-only]

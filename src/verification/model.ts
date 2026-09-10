@@ -137,6 +137,7 @@ export interface Event {
 }
 export interface State {
   workerIdentity?: string;
+  workerJobs?: Record<string, import("./worker.js").WorkerJob>;
   version: 1;
   serviceIdentity?: string;
   mandates: Record<string, Mandate>;
