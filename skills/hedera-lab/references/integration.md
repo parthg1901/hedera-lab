@@ -145,6 +145,44 @@ port to avoid collisions. Browser steps support `goto` with an app-relative `pat
 `click` with `selector`, and `fill` with `selector`/`value`. Follow UI actions with
 independent ledger assertions as well as relevant `text` assertions.
 
+### Repeated runs and payment completion
+
+Inspect application persistence before writing the adapter. If the app accepts a
+runtime directory for payment markers or journals, give each independent disposable
+scenario a new directory, for example `await mkdtemp(path.join(tmpdir(), 'lab-app-'))`.
+Pass it through the app's existing injection option. Preserve the app's replay
+protection; do not delete real payment locks or alter business request IDs to force
+a rerun. Restart/recovery scenarios intentionally reuse their own state instead.
+
+Match the real gateway's error behavior. An HTTP 200 from `/execute` can contain a
+failed consensus status. When the production gateway throws on non-success, the
+injected gateway must do so too:
+
+```js
+const response = await fetch(bridge + '/execute', options);
+if (!response.ok) throw new Error(`Lab bridge HTTP ${response.status}`);
+const result = await response.json();
+if (result.status !== 'SUCCESS') throw new Error(`Consensus: ${result.status}`);
+return result;
+```
+
+A browser click completes before an asynchronous payment necessarily finishes.
+Before interpreting recipient balances, wait for evidence of this run's completed
+workflow. Use the app's stable completion text when available; `text.equals` is
+exact, so do not invent substring matching or hardcode dynamic transaction IDs.
+If an audit message is emitted only after successful transfers, its independently
+observed presence can gate the balance checks. This proves that path reached the
+audit; it does not prove arbitrary failure handling or full batch atomicity.
+
+Run the generated command twice with separate output directories. Both runs must
+reach the intended operation; a second run blocked by `EEXIST`, a stale marker or
+an unfinished request is an integration failure, not another payment defect.
+Read each report's operation statuses, observed values and skipped assertions
+before explaining it. Do not attribute a missing message to the simulator when
+that run never submitted one, or carry observations from an earlier run into a
+later report. Keep the initial report when fixing an integration error. Freeze
+the reviewed scenarios and adapter before asking for an application repair.
+
 This route runs a local app server and Chromium. The hosted signing worker rejects
 browser/server commands: local browser coverage does not imply that the same
 scenario is accepted by a hosted worker.

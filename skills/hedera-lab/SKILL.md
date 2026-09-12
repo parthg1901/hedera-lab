@@ -10,6 +10,10 @@ formats. Inspect its real execution path, generate the integration, run appropri
 checks and explain the result. This skill is agent-neutral Markdown; optional
 `agents/openai.yaml` supplies UI metadata for compatible hosts.
 
+Resolve `references/` links relative to the directory containing this `SKILL.md`,
+not the application or CLI checkout. If a reference read fails, locate and read
+the referenced file before generating an adapter; do not silently skip it.
+
 ## Establish the connection
 
 Locate the application and a Lab-capable CLI. Use the project's existing toolchain;
@@ -42,7 +46,8 @@ them. Keep a short readable contract with requirement-to-assertion mappings.
   themselves accepted plans; adapt supported operations or inject a test adapter.
 - **UI or request workflow:** connect the actual app through a server-side Lab
   bridge and add browser actions plus ledger assertions. Read the browser section
-  of [application integration](references/integration.md). A hand-authored direct
+  of [application integration](references/integration.md), including runtime
+  isolation, transaction status handling and completion checks. A hand-authored direct
   transaction scenario alone does not test application behavior.
 - **Unsupported behavior:** explain the missing adapter or assertion and implement
   it only within the requested scope. The current schema does not cover arbitrary
@@ -95,6 +100,21 @@ plan provenance together; a stale plan cannot verify new code. Use a disposable
 negative control or an existing regression that changes the actual app behavior
 or input while retaining the same requirements. A meaningful mismatch should fail;
 restore the control afterward and retain the result outside source files.
+
+Before handing off a browser integration:
+
+- Give each independent scenario a fresh temporary app runtime directory through
+  the existing injection option, so payment locks from one run cannot block the
+  next. Never remove production locks; recovery scenarios reuse their own state.
+- Match production gateway failures: check both HTTP success and the returned
+  ledger status, throwing on non-`SUCCESS` when the real gateway does.
+- Gate balance checks on completed payment evidence, such as an independently
+  observed audit emitted after transfers. A click is not completion, and unchanged
+  balances alone do not prove exclusion from a completed payment.
+- Run the same scenario twice with separate report directories and confirm both
+  reach the intended operations. Do not stop after the first expected failure.
+- Explain each report using its own operations and observed values. Skipped
+  assertions are unverified; never carry an earlier run's evidence into a later one.
 
 For repairs, change the application, rebuild, and rerun the fixed contract. If
 requirements intentionally change, explain and review that change rather than
